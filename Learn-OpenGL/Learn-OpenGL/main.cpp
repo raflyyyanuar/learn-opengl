@@ -57,7 +57,6 @@ int main() {
 		printf("Failed to initialize GLAD\n");
 		return -1;
 	}
-	
 
 	// build and compile vertex shader
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -107,6 +106,10 @@ int main() {
 	glDeleteShader(fragmentShader);
 
 	// Setup vertex data
+	// The coordinates are in NDC (Normalized Device Coordinates)
+	// That is, a mapping from -1 to 1 of our screen's width and height
+	// In other words, -0.5f in the x axis means at 250
+	// and 0.5f in the y axis means at 450
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f, // left
 		 0.5f, -0.5f, 0.0f, // right
@@ -115,6 +118,8 @@ int main() {
 
 	// setup buffers
 	unsigned int VAO, VBO;
+
+	// generate objects
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
@@ -131,10 +136,10 @@ int main() {
 	glEnableVertexAttribArray(0);
 	// 0 is the layout location defined in vertexShaderSource
 
-	// unbind VBO
+	// unbind VBO first
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// unbind VAO
+	// then unbind VAO
 	glBindVertexArray(0);
 
 	// Set screen clear color to the color of our choice
@@ -156,7 +161,6 @@ int main() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-
 		// check and call events and swap the buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -176,9 +180,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-
 void processInput(GLFWwindow* window) {
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		printf("Right mouse button was clicked!\n");
 		glfwSetWindowShouldClose(window, true);
 	}
 }
