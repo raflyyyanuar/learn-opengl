@@ -90,7 +90,7 @@ int main() {
 	unsigned int shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
-	
+
 	glLinkProgram(shaderProgram);
 
 	// check for linking errors
@@ -111,17 +111,24 @@ int main() {
 	// In other words, -0.5f in the x axis means at 250
 	// and 0.5f in the y axis means at 450
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, // left
-		 0.5f, -0.5f, 0.0f, // right
-		 0.0f,  0.5f, 0.0f, // top
+		-0.5f,  0.5f, 0.0f, // top left
+		 0.5f,  0.5f, 0.0f, // top right
+		-0.5f, -0.5f, 0.0f, // bot left
+		 0.5f, -0.5f, 0.0f, // bot right
+	};
+
+	int indices[] = {
+		0, 1, 2,
+		1, 2, 3,
 	};
 
 	// setup buffers
-	unsigned int VAO, VBO;
+	unsigned int VAO, VBO, EBO;
 
 	// generate objects
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	// bind VAO first
 	glBindVertexArray(VAO);
@@ -130,6 +137,10 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	// GL_STATIC_DRAW = vertices set once, used many times
+	
+	// then bind EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// setup vertex attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -147,7 +158,7 @@ int main() {
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+
 	// This is the render loop
 	while (!glfwWindowShouldClose(window)) {
 		// input
@@ -159,7 +170,13 @@ int main() {
 		// draw our first triangle
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// this is for drawing NOT USING indices
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// this is for drawing USING indices
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// glBindVertexArray(0); // no need to unbind it everytime
 
 		// check and call events and swap the buffers
 		glfwPollEvents();
@@ -169,8 +186,9 @@ int main() {
 	// delete all used resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram);
-	
+
 	glfwTerminate();
 	return 0;
 }
