@@ -16,19 +16,19 @@ const char* vertexShaderSource =
 "}\0"
 ;
 
-const char* redFragmentShaderSource =
+const char* fragmentShaderSource1 =
 "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main() {\n"
-"FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+"FragColor = vec4(0.3359375, 0.4375, 0.515625, 1.0);\n"
 "}\0"
 ;
 
-const char* greenFragmentShaderSource =
+const char* fragmentShaderSource2 =
 "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main() {\n"
-"FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+"FragColor = vec4(0.671875, 0.74609375, 0.75, 1.0);\n"
 "}\0"
 ;
 
@@ -69,31 +69,31 @@ int main() {
 		return -1;
 	}
 
-	unsigned int redFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(redFragmentShader, 1, &redFragmentShaderSource, NULL);
-	glCompileShader(redFragmentShader);
+	unsigned int fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+	glCompileShader(fragmentShader1);
 
-	glGetShaderiv(redFragmentShader, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(fragmentShader1, GL_COMPILE_STATUS, &success);
 	if (!success) {
-		glGetShaderInfoLog(redFragmentShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(fragmentShader1, 512, NULL, infoLog);
 		printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED:\n%s\n", infoLog);
 		return -1;
 	}
 
-	unsigned int greenFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(greenFragmentShader, 1, &greenFragmentShaderSource, NULL);
-	glCompileShader(greenFragmentShader);
+	unsigned int fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
+	glCompileShader(fragmentShader2);
 
-	glGetShaderiv(greenFragmentShader, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(fragmentShader2, GL_COMPILE_STATUS, &success);
 	if (!success) {
-		glGetShaderInfoLog(greenFragmentShader, 512, NULL, infoLog);
+		glGetShaderInfoLog(fragmentShader2, 512, NULL, infoLog);
 		printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED:\n%s\n", infoLog);
 		return -1;
 	}
 
 	unsigned int redShaderProgram = glCreateProgram();
 	glAttachShader(redShaderProgram, vertexShader);
-	glAttachShader(redShaderProgram, redFragmentShader);
+	glAttachShader(redShaderProgram, fragmentShader1);
 	glLinkProgram(redShaderProgram);
 
 	glGetProgramiv(redShaderProgram, GL_LINK_STATUS, &success);
@@ -105,7 +105,7 @@ int main() {
 
 	unsigned int greenShaderProgram = glCreateProgram();
 	glAttachShader(greenShaderProgram, vertexShader);
-	glAttachShader(greenShaderProgram, greenFragmentShader);
+	glAttachShader(greenShaderProgram, fragmentShader2);
 	glLinkProgram(greenShaderProgram);
 
 	glGetProgramiv(greenShaderProgram, GL_LINK_STATUS, &success);
@@ -116,8 +116,8 @@ int main() {
 	}
 
 	glDeleteShader(vertexShader);
-	glDeleteShader(redFragmentShader);
-	glDeleteShader(greenFragmentShader);
+	glDeleteShader(fragmentShader1);
+	glDeleteShader(fragmentShader2);
 
 	float triangle1[] = {
 		// top triangle
@@ -161,7 +161,7 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClearColor(0.7890625, 0.5390625, 0.2890625, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(redShaderProgram);
