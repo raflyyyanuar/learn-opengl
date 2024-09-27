@@ -1,5 +1,6 @@
-#include "shader.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cstdio>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -15,77 +16,61 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Learn OpenGL", NULL, NULL);
 	if (window == NULL) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+		printf("Failed to create GLFW window\n");
 		glfwTerminate();
 		return -1;
 	}
 
 	glfwMakeContextCurrent(window);
+
+	// Register callback functions AFTER the window is created and BEFORE the render loop is initiated
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	// Initialize GLAD to manage function pointers for OpenGL
+	// before calling any OpenGL function
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		glfwTerminate();
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		printf("Failed to initialize GLAD\n");
 		return -1;
 	}
 
-	Shader myShader("../../shaders/vertex/e6.8.3.vs", "../../shaders/fragment/shader.fs");
+	// Set screen clear color to the color of our choice
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 
-	float vertices[] = {
-		// top triangle
-		-0.8f, -0.8f, 0.0f, // left
-		 0.8f, -0.8f, 0.0f, // right
-		 0.0f,  0.8f, 0.0f, // top
-	};
+	// uncomment this call to draw in wireframe polygons.
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	unsigned int VAO, VBO;
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glBindVertexArray(0);
-
+	// This is the render loop
 	while (!glfwWindowShouldClose(window)) {
+		// input
 		processInput(window);
 
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		// rendering
 		glClear(GL_COLOR_BUFFER_BIT);
-		
-		myShader.use();
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
 
+		// check and call events and swap the buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
-
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	myShader.del();
 
 	glfwTerminate();
 	return 0;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	//printf("Window got resized!\n");
 	glViewport(0, 0, width, height);
 }
 
 void processInput(GLFWwindow* window) {
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		printf("Right mouse button was clicked!\n");
 		glfwSetWindowShouldClose(window, true);
 	}
 }
-
